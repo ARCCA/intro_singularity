@@ -3,7 +3,7 @@ layout: lesson
 root: .  # Is the only page that doesn't follow the pattern /:path/index.html
 permalink: index.html  # Is the only page that doesn't follow the pattern /:path/index.html
 ---
-FIXME: home page introduction
+This course provides information about containers and how to use Singularity to manage your applications.
 
 <!-- this is an html comment -->
 
@@ -11,7 +11,7 @@ FIXME: home page introduction
 
 > ## Prerequisites
 >
-> FIXME
+> Knowledge of Linux required.
 {: .prereq}
 
 {% include links.md %}
