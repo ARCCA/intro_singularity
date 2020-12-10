@@ -1,6 +1,5 @@
 ---
 title: "Introducing containers"
-start: true
 teaching: 30
 exercises: 10
 questions:
@@ -30,7 +29,7 @@ Some parts of this course are in the early stages of development. Comments or id
 > - Why you have come on this course and what you hope to learn
 > - One thing about you that may surprise people
 > 
-> Write a few sentences on these in the course Etherpad.
+> Write a few sentences on the supplied online whiteboard.
 {: .challenge }
 
 ## The fundamental problem: software has dependencies that are difficult to manage
@@ -112,7 +111,7 @@ We should certainly see people using the same containers on macOS and Windows to
 > How does computing help you do your research? 
 > How do you think containers (or virtualisation) could help you do more or better research?
 > 
-> Write a few sentences on this topic in the course Etherpad in the section about yourself that you created earlier.
+> Write a few sentences on this topic in the supplied online whiteboard in the section about yourself that you created earlier.
 {: .challenge }
 
 ## Containers and file systems
