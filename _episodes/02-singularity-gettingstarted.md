@@ -40,7 +40,7 @@ The Singularity material comprises 4 episodes, split into 2 parts:
 > **Part II:** (the next two episodes)
 > - Access to a system with Docker installed on which you can run the Singularity Docker container to provide a platform for creating images (we will focus on this option when running the course).
 >
->      OR
+> OR
 >
 > - Access to a local or remote Linux-based system on which you have administrator (root) access and can install the Singularity software.
 >
@@ -159,3 +159,4 @@ exec /bin/bash /rawr.sh
 This shows us the script within the `hello-world.sif` image configured to run by default when we use the `singularity run` command.
 
 That concludes this introductory Singularity episode. The next episode looks in more detail at running containers.
+

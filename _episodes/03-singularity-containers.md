@@ -259,7 +259,10 @@ We can now run a container from this image as we would with any other singularit
 > > Type "help", "copyright", "credits" or "license" for more information.
 > > >>> 
 > > ~~~
+> > {: .language-bash}
+> >
 > > Now try running some simple Python statements:
+> >
 > > ~~~
 > > >>> import math
 > > >>> math.pi
