@@ -11,7 +11,7 @@ This course provides information about containers and how to use Singularity to 
 
 > ## Prerequisites
 >
-> Knowledge of Linux required.
+> Knowledge of Linux required, access to Cardiff University supercomputer Hawk.
 {: .prereq}
 
 {% include links.md %}
