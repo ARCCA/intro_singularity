@@ -24,12 +24,12 @@ If you delete a local `.sif` image that you have pulled from a remote image repo
 
 ~~~
 $ rm hello-world.sif
-$ singularity pull hello-world.sif shub://vsoch/hello-world
+$ singularity pull hello-world.sif shub://SupercomputingWales/singularity_hub:hello-world
 ~~~
 {: .language-bash}
 
 ~~~
-INFO:    Use image from cache
+INFO:    Use cached image
 ~~~
 {: .output}
 
@@ -43,8 +43,8 @@ $ singularity cache list
 {: .language-bash}
 
 ~~~
-There are 1 container file(s) using 62.65 MB and 0 oci blob file(s) using 0.00 kB of space
-Total space used: 62.65 MB
+There are 1 container file(s) using 65.64 MiB and 0 oci blob file(s) using 0.00 KiB of space
+Total space used: 65.64 MiB
 ~~~
 {: .output}
 
@@ -57,10 +57,10 @@ $ singularity cache list -v
 
 ~~~
 NAME                     DATE CREATED           SIZE             TYPE
-hello-world_latest.sif   2020-04-03 13:20:44    62.65 MB         shub
+6389982af82c0b0444e0e2   2020-12-13 23:29:16    65.64 MiB        shub
 
-There are 1 container file(s) using 62.65 MB and 0 oci blob file(s) using 0.00 kB of space
-Total space used: 62.65 MB
+There are 1 container file(s) using 65.64 MiB and 0 oci blob file(s) using 0.00 KiB of space
+Total space used: 65.64 MiB
 ~~~
 {: .output}
 
@@ -134,19 +134,19 @@ As shown above, we have opened a shell in a new container started from the `hell
 >
 > Q: What do you notice about the output of the above commands entered within the Singularity container shell?
 > 
-> Q: Does this differ from what you might see within a Docker container?
+> Q: How would some programs behave?  Try `lsb_release -a` and `uname -a`.
 {: .discussion}
 
 Use the `exit` command to exit from the container shell.
 
 ### Users, files and directories within a Singularity container
 
-The first thing to note is that when you run `whoami` within the container you should see the username that you are signed in as on the host system when you run the container. For example, if my username is `jc1000`:
+The first thing to note is that when you run `whoami` within the container you should see the username that you are signed in as on the host system when you run the container. For example, if my username is `c.username`:
 
 ~~~
 $ singularity shell hello-world.sif
 Singularity> whoami
-jc1000
+c.username
 ~~~
 {: .language-bash}
 
@@ -172,9 +172,9 @@ Host system:                                                      Singularity co
 │   ├── group  ─> user's group added to group file in container ─>│   ├── group
 │   └── passwd ──> user info added to passwd file in container ──>│   └── passwd
 ├── home                                                          ├── usr
-│   └── jc1000 ───> user home directory made available ──> ─┐     ├── sbin
+│   └── c.username ────> home directory made available ──> ─┐     ├── sbin
 ├── usr                 in container via bind mount         │     ├── home
-├── sbin                                                    └────────>└── jc1000
+├── sbin                                                    └────────>└── c.username
 └── ...                                                           └── ...
 
 ~~~
@@ -216,6 +216,7 @@ $ singularity pull python-3.8.2.sif docker://python:3.8.2-slim-buster
 ~~~
 INFO:    Converting OCI blobs to SIF format
 INFO:    Starting build...
+Getting image source signatures
 Copying blob 54fec2fa59d0 done
 Copying blob cd3f35d84cab done
 Copying blob a0afc8e92ef0 done
@@ -224,13 +225,12 @@ Copying blob 6512e60b314b done
 Copying config 1c498e093b done
 Writing manifest to image destination
 Storing signatures
-2020/07/03 11:16:22  info unpack layer: sha256:54fec2fa59d0a0de9cd2dec9850b36c43de451f1fd1c0a5bf8f1cf26a61a5da4
-2020/07/03 11:16:24  info unpack layer: sha256:cd3f35d84caba5a287676eeaea3d371e1ed5af8c57c33532228a456e0505b2d5
-2020/07/03 11:16:24  info unpack layer: sha256:a0afc8e92ef0f5e56ddda03f8af40a4396226443a446e457ab6ed2dcdec62619
-2020/07/03 11:16:25  info unpack layer: sha256:9691f23efdb7fd2829d06ad8fb9c8338487c183bb1aefa0d737cece2a612f51b
-2020/07/03 11:16:25  info unpack layer: sha256:6512e60b314b980bce8ece057d15292db0f50ca12dbe6dd5752e1e54c64ccca2
+2020/12/13 23:43:09  info unpack layer: sha256:54fec2fa59d0a0de9cd2dec9850b36c43de451f1fd1c0a5bf8f1cf26a61a5da4
+2020/12/13 23:43:10  info unpack layer: sha256:cd3f35d84caba5a287676eeaea3d371e1ed5af8c57c33532228a456e0505b2d5
+2020/12/13 23:43:10  info unpack layer: sha256:a0afc8e92ef0f5e56ddda03f8af40a4396226443a446e457ab6ed2dcdec62619
+2020/12/13 23:43:11  info unpack layer: sha256:9691f23efdb7fd2829d06ad8fb9c8338487c183bb1aefa0d737cece2a612f51b
+2020/12/13 23:43:11  info unpack layer: sha256:6512e60b314b980bce8ece057d15292db0f50ca12dbe6dd5752e1e54c64ccca2
 INFO:    Creating SIF file...
-INFO:    Build complete: python-3.8.2.sif
 ~~~
 {: .output}
 
@@ -318,7 +318,7 @@ In addition to running a container and having it run the default run script, you
 > {: .solution}
 {: .challenge}
 
-This concludes the second episode and Part I of the Singularity material. Part II contains a further two episodes where we'll look creating your own images and then more advanced use of containers for running MPI parallel applications.
+This concludes the second episode and Part I of the Singularity material. Part II contains a further two episodes where we'll look creating your own images and then more advanced use of containers for running MPI parallel applications and running with Nvidia GPUs.
 
 ## References
 
