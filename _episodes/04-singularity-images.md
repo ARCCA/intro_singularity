@@ -25,21 +25,21 @@ In this first of two episodes in Part II of the Singularity material, we'll look
 
 ## Preparing to use Singularity for building images
 
-So far you've been able to work with Singularity from your own user account as a non-privileged user. This part of the Singularity material requires that you use Singularity in an environment where you have administrative (root) access. While it is possible to build Singularity containers without root access, it is highly recommended that you do this as the _root_ user, as highlighted in [this section](https://sylabs.io/guides/3.5/user-guide/build_a_container.html#creating-writable-sandbox-directories) of the Singularity documentation. Bear in mind that the system that you use to build containers doesn't have to be the system where you intend to run the containers. If, for example, you are intending to build a container that you can subsequently run on a Linux-based cluster, you could build the container on your own Linux-based desktop or laptop computer. You could then transfer the built image directly to the target platform or upload it to an image repository and pull it onto the target platform from this repository.
+So far you've been able to work with Singularity from your own user account as a non-privileged user. This part of the Singularity material requires that you use Singularity in an environment where you have administrative (root) access. While it is possible to build Singularity containers without root access, it is highly recommended that you do this as the _root_ user, as highlighted in [this section](https://sylabs.io/guides/3.7/user-guide/build_a_container.html#creating-writable-sandbox-directories) of the Singularity documentation. Bear in mind that the system that you use to build containers doesn't have to be the system where you intend to run the containers. If, for example, you are intending to build a container that you can subsequently run on a Linux-based cluster, you could build the container on your own Linux-based desktop or laptop computer. You could then transfer the built image directly to the target platform or upload it to an image repository and pull it onto the target platform from this repository.
 
 There are three different options for accessing a suitable environment to undertake the material in this part of the course:
 
- 1. Run Singularity from within a Docker container - this will enable you to have the required privileges to build images
  1. Install Singularity locally on a system where you have administrative access
  1. Use Singularity on a system where it is already pre-installed and you have administrative (root) access
+ 1. Use one of the Singularity builders in the cloud such as provided by Sylabs and Singularity Hub.
 
-We'll focus on the first option in this part of the course. If you would like to install Singularity directly on your system, see the box below for some further pointers. Note that the installation process is an advanced task that is beyond the scope of this course so we won't be covering this.
+We'll focus on the last option in this part of the course. If you would like to install Singularity directly on your system, see the box below for some further pointers. Note that the installation process is an advanced task that is beyond the scope of this course so we won't be covering this.
 
 > ## Installing Singularity on your local system (optional) \[Advanced task\]
 >
 > If you are running Linux and would like to install Singularity locally on your system, Singularity provide the free, open source [Singularity Community Edition](https://github.com/hpcng/singularity/releases). You will need to install various dependencies on your system and then build Singularity from source code.
 >
-> _If you are not familiar with building applications from source code, it is strongly recommended that you use the Docker Singularity image, as described below in the "Getting started with the Docker Singularity image" section rather than attempting to build and install Singularity yourself. The installation process is an advanced task that is beyond the scope of this session._
+> _If you are not familiar with building applications from source code, and want to investigate Docker further, it is strongly recommended that you use the Docker Singularity image, as described below in the "Getting started with the Docker Singularity image" section rather than attempting to build and install Singularity yourself. The installation process is an advanced task that is beyond the scope of this session._
 > 
 > However, if you have Linux systems knowledge and would like to attempt a local install of Singularity, you can find details in the [INSTALL.md](https://github.com/sylabs/singularity/blob/master/INSTALL.md) file within the Singularity repository that explains how to install the prerequisites and build and install the software. Singularity is written in the [Go](https://golang.org/) programming language and Go is the main dependency that you'll need to install on your system. The process of installing Go and any other requirements is detailed in the INSTALL.md file.
 > 
@@ -50,15 +50,36 @@ We'll focus on the first option in this part of the course. If you would like to
 >
 > If you are not able to access/run Singularity yourself on a system where you have administrative privileges, you can still follow through this material as it is being taught (or read through it in your own time if you're not participating in a taught version of the course) since it will be helpful to have an understanding of how Singularity images can be built.
 > 
-> You could also attempt to follow this section of the lesson without using root and instead using the `singularity` command's [`--fakeroot`](https://sylabs.io/guides/3.5/user-guide/fakeroot.html) option. However, you may encounter issues with permissions when trying to build images and run your containers and this is why running the commands as root is strongly recommended and is the approach described in this lesson.
+> You could also attempt to follow this section of the lesson without using root and instead using the `singularity` command's [`--fakeroot`](https://sylabs.io/guides/3.7/user-guide/fakeroot.html) option. However, you may encounter issues with permissions when trying to build images and run your containers and this is why running the commands as root is strongly recommended and is the approach described in this lesson.
 {: .callout}
 
-## Getting started with the Docker Singularity image
+## Getting started with Sylabs Builder service
+
+[Sylabs](https://www.sylabs.io) provide a cloud based image builder service at [Sylabs
+Builder](https://cloud.sylabs.io/builder).  This requires registration and the installation of an access token as
+described in the [Singularity documentation](https://sylabs.io/guides/3.7/user-guide/cloud_library.html#make-an-account).
+
+After generating the access token this is copied and pasted into Singularity configuration on a system.  For example:
+
+~~~
+$ singularity remote login
+An access token is already set for this remote. Replace it? [N/y]y
+Generate an access token at https://cloud.sylabs.io/auth/tokens, and paste it here.
+Token entered will be hidden for security.
+Access Token:
+INFO:    Access Token Verified!
+INFO:    Token stored in /home/c.username/.singularity/remote.yaml
+~~~
+{: .language-bash}
+
+After successfully adding the token you are ready to use the remote builder.
+
+## Alternately getting started with the Docker Singularity image
 
 The [Singularity Docker image](https://quay.io/repository/singularity/singularity) is available from [Quay.io](https://quay.io/).
 
 > ## Familiarise yourself with the Docker Singularity image
-> - Using your previously acquired Docker knowledge, get the Singularity image for `v3.5.3` and ensure that you can run a Docker container using this image.
+> - Using your previously acquired Docker knowledge, get the Singularity image for `v3.7.0` and ensure that you can run a Docker container using this image.
 > 
 > - Create a directory (e.g. `$HOME/singularity_data`) on your host machine that you can use for storage of _definition files_ (we'll introduce these shortly) and generated image files. 
 > 
@@ -84,15 +105,15 @@ The [Singularity Docker image](https://quay.io/repository/singularity/singularit
 > > 
 > > To run the `singularity` command within the docker container directly from the host system's terminal:
 > > ```
-> > docker run --privileged --rm -v ${PWD}:/home/singularity quay.io/singularity/singularity:v3.5.3 cache list
+> > docker run --privileged --rm -v ${PWD}:/home/singularity quay.io/singularity/singularity:v3.7.0 cache list
 > > ```
 > > 
 > > To start a shell within the Singularity Docker container where the `singularity` command can be run directly:
 > > ```
-> > docker run -it --entrypoint=/bin/bash --privileged --rm -v ${PWD}:/home/singularity quay.io/singularity/singularity:v3.5.3
+> > docker run -it --entrypoint=/bin/bash --privileged --rm -v ${PWD}:/home/singularity quay.io/singularity/singularity:v3.7.0
 > > ```
 > > 
-> > To make things easier to read in the remainder of the material, command examples will use the `singularity` command directly, e.g. `singularity cache list`. If you're running a shell in the Docker container, you can enter the commands as they appear. If you're using the container's default run behaviour and running a container instance for each run of the command, you'll need to replace `singularity` with `docker run --privileged -v ${PWD}:/home/singularity quay.io/singularity/singularity:v3.5.3` or similar.
+> > To make things easier to read in the remainder of the material, command examples will use the `singularity` command directly, e.g. `singularity cache list`. If you're running a shell in the Docker container, you can enter the commands as they appear. If you're using the container's default run behaviour and running a container instance for each run of the command, you'll need to replace `singularity` with `docker run --privileged -v ${PWD}:/home/singularity quay.io/singularity/singularity:v3.7.0` or similar.
 > {: .solution}
 {: .challenge}
 
@@ -109,9 +130,9 @@ Similarly to Docker and many other modern software tools, Singularity follows th
 There are various approaches to building Singularity images. We highlight two different approaches here and focus on one of them:
 
  - _Building within a sandbox:_ You can build a container interactively within a sandbox environment. This means you get a shell within the container environment and install and configure packages and code as you wish before exiting the sandbox and converting it into a container image.
-- _Building from a [Singularity Definition File](https://sylabs.io/guides/3.5/user-guide/build_a_container.html#creating-writable-sandbox-directories)_: This is Singularity's equivalent to building a Docker container from a `Dockerfile` and we'll discuss this approach in this section.
+- _Building from a [Singularity Definition File](https://sylabs.io/guides/3.7/user-guide/build_a_container.html#building-containers-from-singularity-definition-files)_: This is Singularity's equivalent to building a Docker container from a `Dockerfile` and we'll discuss this approach in this section.
 
-You can take a look at Singularity's "[Build a Container](https://sylabs.io/guides/3.5/user-guide/build_a_container.html#creating-writable-sandbox-directories)" documentation for more details on different approaches to building containers.
+You can take a look at Singularity's "[Build a Container](https://sylabs.io/guides/3.7/user-guide/build_a_container.html#build-a-container)" documentation for more details on different approaches to building containers.
 
 > ## Why look at Singularity Definition Files?
 > Why do you think we might be looking at the _definition file approach_ here rather than the _sandbox approach_?
@@ -144,7 +165,7 @@ From: ubuntu:20.04
 ~~~
 {: .language-bash}
 
-A definition file has a number of optional sections, specified using the `%` prefix, that are used to define or undertake different configuration during different stages of the image build process. You can find full details in Singularity's [Definition Files documentation](https://sylabs.io/guides/3.5/user-guide/definition_files.html). In our very simple example here, we only use the `%post` and `%runscript` sections.
+A definition file has a number of optional sections, specified using the `%` prefix, that are used to define or undertake different configuration during different stages of the image build process. You can find full details in Singularity's [Definition Files documentation](https://sylabs.io/guides/3.7/user-guide/definition_files.html). In our very simple example here, we only use the `%post` and `%runscript` sections.
 
 Let's step through this definition file and look at the lines in more detail:
 
@@ -156,7 +177,7 @@ From: ubuntu:20.04
 
 These first two lines define where to _bootstrap_ our image from. Why can't we just put some application binaries into a blank image? Any applications or tools that we want to run will need to interact with standard system libraries and potentially a wide range of other libraries and tools. These need to be available within the image and we therefore need some sort of operating system as the basis for our image. The most straightforward way to achieve this is to start from an existing base image containing an operating system. In this case, we're going to start from a minimal Ubuntu 20.04 Linux Docker image. Note that we're using a Docker image as the basis for creating a Singularity image. This demonstrates the flexibility in being able to start from different types of images when creating a new Singularity image.
 
-The `Bootstrap: docker` line is similar to prefixing an image path with `docker://` when using, for example, the `singularity pull` command. A range of [different bootstrap options](https://sylabs.io/guides/3.5/user-guide/definition_files.html#preferred-bootstrap-agents) are supported. `From: ubuntu:20.04` says that we want to use the `ubuntu` image with the tag `20.04`.
+The `Bootstrap: docker` line is similar to prefixing an image path with `docker://` when using, for example, the `singularity pull` command. A range of [different bootstrap options](https://sylabs.io/guides/3.7/user-guide/definition_files.html#preferred-bootstrap-agents) are supported. `From: ubuntu:20.04` says that we want to use the `ubuntu` image with the tag `20.04`.
 
 Next we have the `%post` section of the definition file:
 
@@ -180,21 +201,14 @@ Finally we have the `%runscript` section:
 
 This section is used to define a script that should be run when a container is started based on this image using the `singularity run` command. In this simple example we use `python3` to print out some text to the console.
 
-We can now save the contents of the simple defintion file shown above to a file and build an image based on it. In the case of this example, the definition file has been named `my_test_image.def`. (Note that the instructions here assume you've bound the image output directory you created to the `/home/singularity` directory in your Docker Singularity container):
+We can now save the contents of the simple defintion file shown above to a file and build an image based on it. In the case of this example, the definition file has been named `my_test_image.def`. Assuming you have successfully added an access token.
 
 ~~~
-$ singularity build /home/singularity/my_test_image.sif /home/singularity/my_test_image.def
-~~~
-{: .language-bash}
-
-Recall from the details at the start of this section that if you are running your command from the host system command line, running an instance of a Docker container for each run of the command, your command will look something like this:
-
-~~~
-$ docker run --privileged --rm -v ${PWD}:/home/singularity quay.io/singularity/singularity:v3.5.3 build /home/singularity/my_test_image.sif /home/singularity/my_test_image.def
+$ singularity build --remote my_test_image.sif my_test_image.def
 ~~~
 {: .language-bash}
 
-The above command requests the building of an image based on the `my_test_image.def` file with the resulting image saved to the `my_test_image.sif` file. Note that you will need to prefix the command with `sudo` if you're running a locally installed version of Singularity and not running via Docker because it is necessary to have administrative privileges to build the image. You should see output similar to the following:
+The above command requests the building of an image based on the `my_test_image.def` file with the resulting image saved to the `my_test_image.sif` file. Note that you will need to prefix the command with `sudo` if you're running a locally installed version of Singularity and not running via another method such as the remote builder used above because it is necessary to have administrative privileges to build the image. You should see output similar to the following:
 
 ~~~
 INFO:    Starting build...
@@ -225,14 +239,16 @@ Reading package lists... Done
 ...Processing triggers for libc-bin (2.31-0ubuntu9) ...
 INFO:    Adding runscript
 INFO:    Creating SIF file...
+INFO:    Build complete: /tmp/image-000097878
+WARNING: Skipping container verifying
+ 54.82 MiB / 54.82 MiB  100.00% 43.30 MiB/s 1sm01s
 INFO:    Build complete: my_test_image.sif
-$ 
 ~~~
 {: .output}
 
 You should now have a `my_test_image.sif` file in the current directory. Note that in the above output, where it says `INFO:  Starting build...` there is a series of `skipped: already exists` messages for the `Copying blob` lines. This is because the Docker image slices for the Ubuntu 20.04 image have previously been downloaded and are cached on the system where this example is being run. On your system, if the image is not already cached, you will see the slices being downloaded from Docker Hub when these lines of output appear.
 
-> ## Permissions of the created image file
+> ## Permissions of the created image file when using sudo
 >
 > You may find that the created Singularity image file on your host filesystem is owned by the `root` user and not your user. In this case, you won't be able to change the ownership/permissions of the file directly if you don't have root access.
 >
@@ -242,11 +258,11 @@ You should now have a `my_test_image.sif` file in the current directory. Note th
 
 Now move your created `.sif` image file to a platform with an installation of Singularity. You could, for example, do this using the command line secure copy command `scp`.
 
-> ## Cluster platform configuration for running Singularity containers
+> ## Possible platform configuration for running Singularity containers
 >
-> On the cluster platform that we're using for the course, it is necesary to setup a shared temporary storage space for Singularity to use because it is not possible for it to use the standard `/tmp` directory on this platform.
+> On some platforms (but not Hawk), it may be necesary to setup a shared temporary storage space for Singularity to use because it is not possible for it to use the standard `/tmp` directory.
 >
-> First create a directory in the `/lustre/home/shared` directory. It is recommended that you create a directory named `$USER-singularity`. We then need to set Singularity's temporary directory environment variable to point to this location. Run the following commands:
+> First create a directory to be used for temporary storage. It is recommended that you create a directory named `$USER-singularity`. We then need to set Singularity's temporary directory environment variable to point to this location. Run the following commands:
 >
 > ~~~
 > mkdir /lustre/home/shared/$USER-singularity
@@ -255,7 +271,7 @@ Now move your created `.sif` image file to a platform with an installation of Si
 > ~~~
 > {: .language-bash}
 >
-> When running Singularity containers on this platform, you'll need to set `SINGULARITY_TMPDIR` in each shell session that you open. However, you could add these commands to your `~/.bashrc` or `~/.bash_profile` so that the values are set by default in each shell that you open.
+> When running Singularity containers, you'll need to set `SINGULARITY_TMPDIR` in each shell session that you open. However, you could add these commands to your `~/.bashrc` or `~/.bash_profile` so that the values are set by default in each shell that you open.
 > 
 {: .callout}
 
@@ -275,9 +291,9 @@ Hello World! Hello from our custom Singularity image!
 ~~~
 {: .output}
 
-> ## Using `singularity run` from within the Docker container
+> ## Using `singularity run` from within a Docker container
 >
-> It is strongly recommended that you don't use the Docker container for running Singularity images, only for creating then, since the Singularity command runs within the container as the root user.
+> It is strongly recommended that you don't use a Docker container for running Singularity images, only for creating then, since the Singularity command runs within the container as the root user.
 > 
 > However, for the purposes of this simple example, if you are trying to run the container using the `singularity` command from within the Docker container, it is likely that you will get an error relating to `/etc/localtime` similar to the following:
 >
@@ -311,13 +327,32 @@ Here we've looked at a very simple example of how to create an image. At this st
  - `%labels`
  - `%help`
 
-The [`Sections` part of the definition file documentation](https://sylabs.io/guides/3.5/user-guide/definition_files.html#sections) details all the sections and provides an example definition file that makes use of all the sections.
+The [`Sections` part of the definition file documentation](https://sylabs.io/guides/3.7/user-guide/definition_files.html#sections) details all the sections and provides an example definition file that makes use of all the sections.
 
 ### Additional Singularity features
 
-Singularity has a wide range of features. You can find full details in the [Singularity User Guide](https://sylabs.io/guides/3.5/user-guide/index.html) and we highlight a couple of key features here that may be of use/interest:
+Singularity has a wide range of features. You can find full details in the [Singularity User Guide](https://sylabs.io/guides/3.7/user-guide/index.html) and we highlight a couple of key features here that may be of use/interest:
 
-**Remote Builder Capabilities:** If you have access to a platform with Singularity installed but you don't have root access to create containers, you may be able to use the [Remote Builder](https://cloud.sylabs.io/builder) functionality to offload the process of building an image to remote cloud resources. You'll need to register for a _cloud token_ via the link on the [Remote Builder](https://cloud.sylabs.io/builder) page.
 
-**Signing containers:** If you do want to share container image (`.sif`) files directly with colleagues or collaborators, how can the people you send an image to be sure that they have received the file without it being tampered with or suffering from corruption during transfer/storage? And how can you be sure that the same goes for any container image file you receive from others? Singularity supports signing containers. This allows a digital signature to be linked to an image file. This signature can be used to verify that an image file has been signed by the holder of a specific key and that the file is unchanged from when it was signed. You can find full details of how to use this functionality in the Singularity documentation on [Signing and Verifying Containers](https://sylabs.io/guides/3.0/user-guide/signNverify.html).
+**Signing containers:** If you do want to share container image (`.sif`) files directly with colleagues or collaborators, how can the people you send an image to be sure that they have received the file without it being tampered with or suffering from corruption during transfer/storage? And how can you be sure that the same goes for any container image file you receive from others? Singularity supports signing containers. This allows a digital signature to be linked to an image file. This signature can be used to verify that an image file has been signed by the holder of a specific key and that the file is unchanged from when it was signed. You can find full details of how to use this functionality in the Singularity documentation on [Signing and Verifying Containers](https://sylabs.io/guides/3.7/user-guide/signNverify.html).
+
+## Using Singularity Hub
+
+A collection of Singularity definition files have been built up on the [Supercomputing Wales Github
+account](https://github.com/SupercomputingWales/singularity_hub)
+
+This repository is configured to use a web hook to automatically build updates to the repository on the [Singularity
+Hub](https://singularity-hub.org).
+
+Once built it can then be pulled from Singularity Hub using
+
+~~~
+$ singularity pull shub://SupercomputingWales/singularity_hub:hello-world
+~~~
+{: .language-bash}
+
+This `pull` was performed earlier in the very first examples.  It is worth noting the
+[limits](https://singularityhub.github.io/singularityhub-docs/docs/regulatory/limits) that are imposed on users to keep
+the usage to a manageable amount. The resource to build the images is currently provided by Google free of charge but
+abuse of the system could change that.
 
