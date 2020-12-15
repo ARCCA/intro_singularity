@@ -22,6 +22,8 @@ MPI - [Message Passing Interface](https://en.wikipedia.org/wiki/Message_Passing_
 
 When working with an MPI code on a large-scale cluster, a common approach is to compile the code yourself, within your own user directory on the cluster platform, building against the supported MPI implementation on the cluster. Alternatively, if the code is widely used on the cluster, the platform administrators may build and package the application as a module so that it is easily accessible by all users of the cluster.
 
+An important aspect of MPI is the support for PMI - [Parallel Process-Management Interface](https://www.mcs.anl.gov/papers/P1760.pdf) which allows MPI programs to be run with many different process managers that actually run the MPI code.  This reduces the overhard of having to match MPI libraries at runtime with what the code was built with at buildtime.
+
 ### MPI codes with Singularity containers
 
 We've already seen that building Singularity containers can be impractical without root access. Since we're highly unlikely to have root access on a large institutional, regional or national cluster, building a container directly on the target platform is not normally an option.
@@ -30,31 +32,27 @@ If our target platform uses [OpenMPI](https://www.open-mpi.org/), one of the two
 
 If the target platform uses a version of MPI based on [MPICH](https://www.mpich.org/), the other widely used open source MPI implementation, there is [ABI compatibility between MPICH and several other MPI implementations](https://www.mpich.org/abi/). In this case, you can build MPICH and your code on a local platform, within an image sandbox or as part of the image build process via a definition file, and you should be able to successfully run containers based on this image on your target cluster platform.
 
-As described in Singularity's [MPI documentation](https://sylabs.io/guides/3.5/user-guide/mpi.html), support for both OpenMPI and MPICH is provided. Instructions are given for building the relevant MPI version from source via a definition file and we'll see this used in an example below.
+As described in Singularity's [MPI documentation](https://sylabs.io/guides/3.7/user-guide/mpi.html), support for both OpenMPI and MPICH is provided. Instructions are given for building the relevant MPI version from source via a definition file and we'll see this used in an example below.
 
-While building a container on a local system that is intended for use on a remote HPC platform does provide some level of portability, if you're after the best possible performance, it can present some issues. The version of MPI in the container will need to be built and configured to support the hardware on your target platform if the best possible performance is to be achieved. Where a platform has specialist hardware with proprietary drivers, building on a different platform with different hardware present means that building with the right driver support for optimal performance is not likely to be possible. This is especially true if the version of MPI available is different (but compatible). Singularity's [MPI documentation](https://sylabs.io/guides/3.5/user-guide/mpi.html) highlights two different models for working with MPI codes. The _[hybrid model](https://sylabs.io/guides/3.5/user-guide/mpi.html#hybrid-model)_ that we'll be looking at here involves using the MPI executable from the MPI installation on the host system to launch singularity and run the application within the container. The application in the container is linked against and uses the MPI installation within the container which, in turn, communicates with the MPI daemon process running on the host system. In the following section we'll look at building a Singularity image containing a small MPI application that can then be run using the hybrid model.
+While building a container on a local system that is intended for use on a remote HPC platform does provide some level of portability, if you're after the best possible performance, it can present some issues. The version of MPI in the container will need to be built and configured to support the hardware on your target platform if the best possible performance is to be achieved. Where a platform has specialist hardware with proprietary drivers, building on a different platform with different hardware present means that building with the right driver support for optimal performance is not likely to be possible. This is especially true if the version of MPI available is different (but compatible). Singularity's [MPI documentation](https://sylabs.io/guides/3.5/user-guide/mpi.html) highlights two different models for working with MPI codes. The _[hybrid model](https://sylabs.io/guides/3.5/user-guide/mpi.html#hybrid-model)_ that we'll be looking at here involves using the MPI executable from the MPI installation on the host system to launch singularity and run the application within the container. The application in the container is linked against and uses the MPI installation within the container which, in turn, communicates with the MPI daemon process running on the host system. 
+
+In this section we will be using the `srun` command as an [alternate launcher](https://sylabs.io/guides/3.7/user-guide/mpi.html#alternative-launchers) to take advantage of PMI.
 
 ### Building and running a Singularity image for an MPI code
 
 #### Building and testing an image
 
-This example makes the assumption that you'll be building a container image on a local platform and then deploying it to a cluster with a different but compatible MPI implementation. See [Singularity and MPI applications](https://sylabs.io/guides/3.5/user-guide/mpi.html#singularity-and-mpi-applications) in the Singularity documentation for further information on how this works.
+This example makes the assumption that you'll be building a container image on a local platform and then deploying it to a cluster with a different but compatible MPI implementation (using PMI). See [Singularity and MPI applications](https://sylabs.io/guides/3.5/user-guide/mpi.html#singularity-and-mpi-applications) in the Singularity documentation for further information on how this works.
 
 We'll build an image from a definition file. Containers based on this image will be able to run MPI benchmarks using the [OSU Micro-Benchmarks](https://mvapich.cse.ohio-state.edu/benchmarks/) software.
 
-In this example, the target platform is a remote HPC cluster that uses [Intel MPI](https://software.intel.com/content/www/us/en/develop/tools/mpi-library.html). The container can be built via the Singularity Docker image that we used in the previous episode of the Singularity material.
+In this example, the target platform is a remote HPC cluster that uses [Intel MPI](https://software.intel.com/content/www/us/en/develop/tools/mpi-library.html) and [Slurm](https://slurm.schedmd.com/). The container can be built via methods used in the previous episode of the Singularity material.
 
-Begin by creating a directory and, within that directory, downloading and saving the "tarballs" for version 5.6.2 of the OSU Micro-Benchmarks from the [OSU Micro-Benchmarks page](https://mvapich.cse.ohio-state.edu/benchmarks/) and for [MPICH version 3.3.2] from the [MPICH downloads page](https://www.mpich.org/downloads/).
-
-In the same directory, save the following definition file content to a `.def` file, e.g. `osu_benchmarks.def`:
+Begin by creating a directory, within that directory save the following definition file content to a `.def` file, e.g. `osu_benchmarks.def`:
 
 ~~~
 Bootstrap: docker
 From: ubuntu:20.04
-
-%files
-    /home/singularity/osu-micro-benchmarks-5.6.3.tar.gz /root/
-    /home/singularity/mpich-3.3.2.tar.gz /root/
 
 %environment
     export SINGULARITY_MPICH_DIR=/usr
@@ -62,12 +60,14 @@ From: ubuntu:20.04
 %post
     apt-get -y update && DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential libfabric-dev libibverbs-dev gfortran
     cd /root
+    wget http://www.mpich.org/static/downloads/3.3.2/mpich-3.3.2.tar.gz
     tar zxvf mpich-3.3.2.tar.gz && cd mpich-3.3.2
     echo "Configuring and building MPICH..."
     ./configure --prefix=/usr --with-device=ch3:nemesis:ofi && make -j2 && make install
     cd /root
-    tar zxvf osu-micro-benchmarks-5.6.3.tar.gz
-    cd osu-micro-benchmarks-5.6.3/
+    wget https://mvapich.cse.ohio-state.edu/download/mvapich/osu-micro-benchmarks-5.7.tar.gz
+    tar zxvf osu-micro-benchmarks-5.7.tar.gz
+    cd osu-micro-benchmarks-5.7/
     echo "Configuring and building OSU Micro-Benchmarks..."
     ./configure --prefix=/usr/local/osu CC=/usr/bin/mpicc CXX=/usr/bin/mpicxx
     make -j2 && make install
@@ -81,12 +81,11 @@ From: ubuntu:20.04
 A quick overview of what the above definition file is doing:
 
  - The image is being bootstrapped from the `ubuntu:20.04` Docker image.
- - In the `%files` section: The OSU Micro-Benchmarks and MPICH tar files are copied from the current directory into the `/root` directory in the image.
  - In the `%environment` section: Set an environment variable that will be available within all containers run from the generated image.
  - In the `%post` section:
    - Ubuntu's `apt-get` package manager is used to update the package directory and then install the compilers and other libraries required for the MPICH build.
-   - The MPICH .tar.gz file is extracted and the configure, build and install steps are run. Note the use of the --with-device option to configure MPICH to use the correct driver to support improved communication performance on a high performance cluster.
-   - The OSU Micro-Benchmarks tar.gz file is extracted and the configure, build and install steps are run to build the benchmark code from source.
+   - The MPICH .tar.gz file is downloaded, extracted and the configure, build and install steps are run. Note the use of the `--with-device` option to configure MPICH to use the correct driver to support improved communication performance on a high performance cluster.
+   - The OSU Micro-Benchmarks tar.gz file is downloaded, extracted and the configure, build and install steps are run to build the benchmark code from source.
  - In the `%runscript` section: A runscript is set up that will echo the rank number of the current process and then run the command provided as a command line argument.
 
 _Note that base path of the the executable to run is hardcoded in the run script_ so the command line parameter to provide when running a container based on this image is relative to this base path, for example, `startup/osu_hello`, `collective/osu_allgather`, `pt2pt/osu_latency`, `one-sided/osu_put_latency`.
@@ -104,11 +103,11 @@ _Note that base path of the the executable to run is hardcoded in the run script
 > > You should be able to build an image from the definition file as follows:
 > > 
 > > ~~~
-> > $ singularity build osu_benchmarks.sif osu_benchmarks.def
+> > $ singularity build --remote osu_benchmarks.sif osu_benchmarks.def
 > > ~~~
 > > {: .language-bash}
 > >
-> > _Note that if you're running the Singularity Docker container directly from the command line to undertake your build, you'll need to provide the full path to the `.def` file at which it appears within the container_ - for example, if you've bind mounted the directory containing the file to `/home/singularity` within the container, the full path to the `.def` file will be `/home/singularity/osu_benchmarks.def`._
+> > _If instead, you're running the Singularity Docker container directly from the command line to undertake your build, you'll need to provide the full path to the `.def` file at which it appears within the container_ - for example, if you've bind mounted the directory containing the file to `/home/singularity` within the container, the full path to the `.def` file will be `/home/singularity/osu_benchmarks.def`._
 > >
 > > Assuming the image builds successfully, you can then try running the container locally and also transfer the SIF file to a cluster platform that you have access to (that has Singularity installed) and run it there.
 > > 
@@ -123,7 +122,7 @@ _Note that base path of the the executable to run is hardcoded in the run script
 > > 
 > > ~~~
 > > Rank  - About to run: /usr/local/osu/libexec/osu-micro-benchmarks/mpi/startup/osu_hello
-> > # OSU MPI Hello World Test v5.6.2
+> > # OSU MPI Hello World Test v5.7
 > > This is a test with 1 processes
 > > ~~~
 > > {: .output}
@@ -140,11 +139,11 @@ This is where things get interesting and we'll begin by looking at how Singulari
 
 If you're familiar with running MPI codes, you'll know that you use `mpirun`, `mpiexec` or a similar MPI executable to start your application. This executable may be run directly on the local system or cluster platform that you're using, or you may need to run it through a job script submitted to a job scheduler. Your MPI-based application code, which will be linked against the MPI libraries, will make MPI API calls into these MPI libraries which in turn talk to the MPI daemon process running on the host system. This daemon process handles the communication between MPI processes, including talking to the daemons on other nodes to exchange information between processes running on different machines, as necessary.
 
-When running code within a Singularity container, we don't use the MPI executables stored within the container (i.e. we DO NOT run `singularity exec mpirun -np <numprocs> /path/to/my/executable`). Instead we use the MPI installation on the host system to run Singularity and start an instance of our executable from within a container for each MPI process. Without Singularity support in an MPI implementation, this results in starting a separate Singularity container instance within each process. This can present some overhead if a large number of processes are being run on a host. Where Singularity support is built into an MPI implementation this can address this potential issue and reduce the overhead of running code from within a container as part of an MPI job.
+When running code within a Singularity container, we don't use the MPI executables stored within the container (i.e. we DO NOT run `singularity exec mpirun -np <numprocs> /path/to/my/executable`). Instead we use the MPI installation on the host system or the process manager in a scheduler such as Slurm that supports PMI, to run Singularity and start an instance of our executable from within a container for each MPI process. Without Singularity support in an MPI implementation, this results in starting a separate Singularity container instance within each process. This can present some overhead if a large number of processes are being run on a host. Where Singularity support is built into an MPI implementation this can address this potential issue and reduce the overhead of running code from within a container as part of an MPI job.
 
-Ultimately, this means that our running MPI code is linking to the MPI libraries from the MPI install within our container and these are, in turn, communicating with the MPI daemon on the host system which is part of the host system's MPI installation. These two installations of MPI may be different but as long as there is ABI compatibility between the version of MPI installed in your container image and the version on the host system, your job should run successfully.
+Ultimately, this means that our running MPI code is linking to the MPI libraries from the MPI install within our container and these are, in turn, communicating with the MPI daemon on the host system which is part of the host system's MPI installation. These two installations of MPI may be different but as long as there is ABI compatibility between the version of MPI installed in your container image and the version on the host system, your job should run successfully.  If running with `srun` this is solved by PMI support in-built into the scheduler.
 
-We can now try running a 2-process MPI run of a point to point benchmark `osu_latency`. If your local system has both MPI and Singularity installed and has multiple cores, you can run this test on that system. Alternatively you can run on a cluster. Note that you may need to submit this command via a job submission script submitted to a job scheduler if you're running on a cluster. If you're attending a taught version of this course, some information will be provided below in relation to the cluster that you've been provided with access to.
+We can now try running a 2-process MPI run of a point to point benchmark `osu_latency`. If your local system has both MPI and Singularity installed and has multiple cores, you can run this test on that system. Alternatively you can run on a cluster. Note that you may need to submit this command via a job submission script submitted to a job scheduler if you're running on a cluster (and use the scheduler's PMI support). If you're attending a taught version of this course, some information will be provided below in relation to the cluster that you've been provided with access to.
 
 
 > ## Undertake a parallel run of the `osu_latency` benchmark (general example)
@@ -154,7 +153,7 @@ We can now try running a 2-process MPI run of a point to point benchmark `osu_la
 > You should be able to run the benchmark using a command similar to the one shown below. However, if you are running on a cluster, you may need to write and submit a job submission script at this point to initiate running of the benchmark.
 >
 > ~~~
-> $ mpirun -np 2 singularity run osu_benchmarks.sif pt2pt/osu_latency
+> $ srun singularity run osu_benchmarks.sif pt2pt/osu_latency
 > ~~~
 > {: .language-bash}
 > 
@@ -167,7 +166,7 @@ We can now try running a 2-process MPI run of a point to point benchmark `osu_la
 > >~~~
 > > Rank 1 - About to run: /.../mpi/pt2pt/osu_latency
 > > Rank 0 - About to run: /.../mpi/pt2pt/osu_latency
-> > # OSU MPI Latency Test v5.6.2
+> > # OSU MPI Latency Test v5.7
 > > # Size          Latency (us)
 > > 0                       0.38
 > > 1                       0.34
@@ -208,7 +207,7 @@ We can now try running a 2-process MPI run of a point to point benchmark `osu_la
 > > INFO:    Convert SIF file to sandbox...
 > > Rank 1 - About to run: /.../mpi/pt2pt/osu_latency
 > > Rank 0 - About to run: /.../mpi/pt2pt/osu_latency
-> > # OSU MPI Latency Test v5.6.2
+> > # OSU MPI Latency Test v5.7
 > > # Size          Latency (us)
 > > 0                       1.49
 > > 1                       1.50
