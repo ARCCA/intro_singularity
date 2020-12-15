@@ -69,6 +69,7 @@ From: ubuntu:20.04
     tar zxvf osu-micro-benchmarks-5.7.tar.gz
     cd osu-micro-benchmarks-5.7/
     echo "Configuring and building OSU Micro-Benchmarks..."
+    autoreconf -vif
     ./configure --prefix=/usr/local/osu CC=/usr/bin/mpicc CXX=/usr/bin/mpicxx
     make -j2 && make install
 
