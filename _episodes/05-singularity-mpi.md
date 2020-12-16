@@ -58,7 +58,7 @@ From: ubuntu:20.04
     export SINGULARITY_MPICH_DIR=/usr
 
 %post
-    apt-get -y update && DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential libfabric-dev libibverbs-dev gfortran autoconf
+    apt-get -y update && DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential libfabric-dev libibverbs-dev gfortran wget autoconf
     cd /root
     wget http://www.mpich.org/static/downloads/3.3.2/mpich-3.3.2.tar.gz
     tar zxvf mpich-3.3.2.tar.gz && cd mpich-3.3.2
