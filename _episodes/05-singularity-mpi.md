@@ -34,7 +34,7 @@ If the target platform uses a version of MPI based on [MPICH](https://www.mpich.
 
 As described in Singularity's [MPI documentation](https://sylabs.io/guides/3.7/user-guide/mpi.html), support for both OpenMPI and MPICH is provided. Instructions are given for building the relevant MPI version from source via a definition file and we'll see this used in an example below.
 
-While building a container on a local system that is intended for use on a remote HPC platform does provide some level of portability, if you're after the best possible performance, it can present some issues. The version of MPI in the container will need to be built and configured to support the hardware on your target platform if the best possible performance is to be achieved. Where a platform has specialist hardware with proprietary drivers, building on a different platform with different hardware present means that building with the right driver support for optimal performance is not likely to be possible. This is especially true if the version of MPI available is different (but compatible). Singularity's [MPI documentation](https://sylabs.io/guides/3.5/user-guide/mpi.html) highlights two different models for working with MPI codes. The _[hybrid model](https://sylabs.io/guides/3.5/user-guide/mpi.html#hybrid-model)_ that we'll be looking at here involves using the MPI executable from the MPI installation on the host system to launch singularity and run the application within the container. The application in the container is linked against and uses the MPI installation within the container which, in turn, communicates with the MPI daemon process running on the host system. 
+While building a container on a local system that is intended for use on a remote HPC platform does provide some level of portability, if you're after the best possible performance, it can present some issues. The version of MPI in the container will need to be built and configured to support the hardware on your target platform if the best possible performance is to be achieved. Where a platform has specialist hardware with proprietary drivers, building on a different platform with different hardware present means that building with the right driver support for optimal performance is not likely to be possible. This is especially true if the version of MPI available is different (but compatible). Singularity's [MPI documentation](https://sylabs.io/guides/3.7/user-guide/mpi.html) highlights two different models for working with MPI codes. The _[hybrid model](https://sylabs.io/guides/3.7/user-guide/mpi.html#hybrid-model)_ that we'll be looking at here involves using the MPI executable from the MPI installation on the host system to launch singularity and run the application within the container. The application in the container is linked against and uses the MPI installation within the container which, in turn, communicates with the MPI daemon process running on the host system. 
 
 In this section we will be using the `srun` command as an [alternate launcher](https://sylabs.io/guides/3.7/user-guide/mpi.html#alternative-launchers) to take advantage of PMI.
 
@@ -42,7 +42,7 @@ In this section we will be using the `srun` command as an [alternate launcher](h
 
 #### Building and testing an image
 
-This example makes the assumption that you'll be building a container image on a local platform and then deploying it to a cluster with a different but compatible MPI implementation (using PMI). See [Singularity and MPI applications](https://sylabs.io/guides/3.5/user-guide/mpi.html#singularity-and-mpi-applications) in the Singularity documentation for further information on how this works.
+This example makes the assumption that you'll be building a container image on a local platform and then deploying it to a cluster with a different but compatible MPI implementation (using PMI). See [Singularity and MPI applications](https://sylabs.io/guides/3.7/user-guide/mpi.html#singularity-and-mpi-applications) in the Singularity documentation for further information on how this works.
 
 We'll build an image from a definition file. Containers based on this image will be able to run MPI benchmarks using the [OSU Micro-Benchmarks](https://mvapich.cse.ohio-state.edu/benchmarks/) software.
 
@@ -58,7 +58,7 @@ From: ubuntu:20.04
     export SINGULARITY_MPICH_DIR=/usr
 
 %post
-    apt-get -y update && DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential libfabric-dev libibverbs-dev gfortran
+    apt-get -y update && DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential libfabric-dev libibverbs-dev gfortran autoconf
     cd /root
     wget http://www.mpich.org/static/downloads/3.3.2/mpich-3.3.2.tar.gz
     tar zxvf mpich-3.3.2.tar.gz && cd mpich-3.3.2
@@ -96,8 +96,6 @@ _Note that base path of the the executable to run is hardcoded in the run script
 > Using the above definition file, build a Singularity image named `osu_benchmarks.sif`.
 > 
 > Once you have built the image, use it to run the `osu_hello` benchmark that is found in the `startup` benchmark folder.
-> 
-> _NOTE: If you're not using the Singularity Docker image to build your Singularity image, you will need to edit the path to the .tar.gz file in the `%files` section of the definition file._
 > 
 > > ## Solution
 > > 
@@ -244,10 +242,5 @@ You could now try running a larger-scale test. You can also try running a benchm
 > {: .solution}
 {: .challenge}
 
-If performance is an issue for you with codes that you'd like to run via Singularity, you are advised to take a look at using the _[bind model](https://sylabs.io/guides/3.5/user-guide/mpi.html#bind-model)_ for building/running MPI applications through Singularity.
+If performance is an issue for you with codes that you'd like to run via Singularity, you are advised to take a look at using the _[bind model](https://sylabs.io/guides/3.7/user-guide/mpi.html#bind-model)_ for building/running MPI applications through Singularity.
 
-## Singularity wrap-up
-
-This concludes the 4 episodes of the course covering Singularity. We hope you found this information useful and that it has inspired you to use Singularity to help enhance the way you build/work with research software.
-
-As a new set of material, we appreciate that there are likely to be improvements that can be made to enhance the quality of this material. We welcome your thoughts, suggestions and feedback on improvements that could be made to help others making use of these lessons.

@@ -21,7 +21,7 @@ In the two episodes covering Part I of the Singularity material we've seen how S
 
 It is clear that between Singularity Hub and Docker Hub there is a huge array of images available but what if you want to create your own images or customise existing images?
 
-In this first of two episodes in Part II of the Singularity material, we'll look at building Singularity images.
+In this first of three episodes in Part II of the Singularity material, we'll look at building Singularity images.
 
 ## Preparing to use Singularity for building images
 

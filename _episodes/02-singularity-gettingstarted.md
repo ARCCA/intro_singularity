@@ -16,7 +16,7 @@ keypoints:
 
 [Singularity](https://sylabs.io/singularity/) is the recommended approach to running containers on HPC but before running we need to set up and use Singularity.
 
-The Singularity material comprises 4 episodes, split into 2 parts:
+The Singularity material comprises 5 episodes, split into 2 parts:
 
 *Part I: Basic usage, working with images*
  1. **Singularity: Getting started**: This introductory episode
@@ -25,6 +25,7 @@ The Singularity material comprises 4 episodes, split into 2 parts:
 *Part II: Creating images, running parallel codes*
  1. **Building Singularity images**: Explaining how to build and share your own Singularity images
  1. **Running MPI parallel jobs using Singularity containers**: Explaining how to run MPI parallel codes from within Singularity containers
+ 1. **Running Singularity containers with GPUs**: Explaining how to run MPI parallel codes from within Singularity containers
 
 
 > ## Prerequisites
@@ -34,7 +35,7 @@ The Singularity material comprises 4 episodes, split into 2 parts:
 > - Access to a local or remote platform with Singularity pre-installed and accessible to you as a user (i.e. no administrator/root access required).
 >   - If you are attending a taught version of this material, it is expected that the course organisers will provide access to a platform (e.g. an institutional HPC cluster) that you can use for the first section of this material.
 >
-> **Part II:** (the next two episodes)
+> **Part II:** (the next three episodes)
 > - Access to a Singularity builder site (shown during course) or root access on a system with Singularity installed.  For real technical users it is possible to run Docker with a container that can run Singularity.  This is outside the scope of this course.
 >
 > **Please note that the version of Singularity used in this part of the course is the latest stable release at the time of writing, _version 3.7.0_.** If you are installing Singularity on your own system for use in the course, you are recommneded to install version 3.7.0.

@@ -318,7 +318,7 @@ In addition to running a container and having it run the default run script, you
 > {: .solution}
 {: .challenge}
 
-This concludes the second episode and Part I of the Singularity material. Part II contains a further two episodes where we'll look creating your own images and then more advanced use of containers for running MPI parallel applications and running with Nvidia GPUs.
+This concludes the second episode and Part I of the Singularity material. Part II contains a further three episodes where we'll look creating your own images and then more advanced use of containers for running MPI parallel applications and running with Nvidia GPUs.
 
 ## References
 
