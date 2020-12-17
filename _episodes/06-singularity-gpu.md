@@ -45,8 +45,8 @@ $ singularity run --nv my_image.sif
 Lets create a directory and within the directory create a `.def` file with the following contents.
 
 ~~~
-Bootstrap:docker  
-From:continuumio/miniconda:4.7.12
+Bootstrap:docker
+From:continuumio/miniconda3:4.9.2
 
 %labels
 MAINTAINER Thomas Green
@@ -66,7 +66,7 @@ mkdir /apps
 . /etc/profile
 conda create --name pytorch
 conda activate pytorch
-conda install pytorch torchvision torchaudio -c pytorch
+conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch
 ~~~
 {: .output}
 
