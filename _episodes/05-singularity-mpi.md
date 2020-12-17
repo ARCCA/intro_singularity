@@ -110,10 +110,11 @@ _Note that base path of the the executable to run is hardcoded in the run script
 > >
 > > Assuming the image builds successfully, you can then try running the container locally and also transfer the SIF file to a cluster platform that you have access to (that has Singularity installed) and run it there.
 > > 
-> > Let's begin with a single-process run of `osu_hello` on the local system to ensure that we can run the container as expected:
+> > Let's begin with a single-process run of `osu_hello` on the system to ensure that we can run the container as expected:
 > > 
 > > ~~~
-> > $ singularity run osu_benchmarks.sif startup/osu_hello
+> > $ srun -n 1 -p c_compute_mdi1 --reservation=training -A scw1148 --pty bash
+> > $ srun singularity run osu_benchmarks.sif startup/osu_hello
 > > ~~~
 > > {: .language-bash}
 > > 
@@ -126,7 +127,7 @@ _Note that base path of the the executable to run is hardcoded in the run script
 > > ~~~
 > > {: .output}
 > > 
-> > Note that no rank number is shown since we didn't run the container via mpirun and so the `${PMI_RANK}` environment variable that we'd normally have set in an MPICH run process is not set.
+> > If run outside of a cluster, note that no rank number is shown since we didn't run the container via mpirun and so the `${PMI_RANK}` environment variable that we'd normally have set in an MPICH run process is not set.
 > {: .solution}
 {: .challenge}
 
