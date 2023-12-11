@@ -14,13 +14,13 @@ keypoints:
 - "The `singularity` command can be used to pull images from Singularity Hub and run a container from an image file."
 ---
 
-[Singularity](https://sylabs.io/singularity/) is the recommended approach to running containers on HPC but before running we need to set up and use Singularity.
+[SingularityCE](https://sylabs.io/singularity/) or [Apptainer](https://apptainer.org) are the recommended approaches to running containers on HPC but before running we need to set up and use them.  For the purpose of this material "Singularity" refers to either SingularityCE or Apptainer.
 
 The Singularity material comprises 5 episodes, split into 2 parts:
 
 *Part I: Basic usage, working with images*
  1. **Singularity: Getting started**: This introductory episode
- 1. **Working with Singularity containers**: Going into a little more detail about Singularity containers and how to work with them
+ 1. **Working with SingularityCE/Apptainer containers**: Going into a little more detail about Singularity containers and how to work with them
  
 *Part II: Creating images, running parallel codes*
  1. **Building Singularity images**: Explaining how to build and share your own Singularity images
@@ -49,13 +49,13 @@ The Singularity material comprises 5 episodes, split into 2 parts:
 
 ## What is Singularity?
 
-[Singularity](https://sylabs.io/singularity/) is another container platform. In some ways it appears similar to Docker from a user perspective, but in others, particularly in the system's architecture, it is fundamentally different. These differences mean that Singularity is particularly well-suited to running on distributed, High Performance Computing (HPC) infrastructure, as well as a Linux laptop or desktop! 
+[SingularityCE](https://sylabs.io/singularity/) and [Apptainer](https://apptainer.org) are container platforms. In some ways it appears similar to Docker from a user perspective, but in others, particularly in the system's architecture, it is fundamentally different. These differences mean that Singularity is particularly well-suited to running on distributed, High Performance Computing (HPC) infrastructure, as well as a Linux laptop or desktop! 
 
 System administrators will not, generally, install Docker on shared computing platforms such as lab desktops, research clusters or HPC platforms because the design of Docker presents potential security issues for shared platforms with multiple users. Singularity, on the other hand, can be run by end-users entirely within "user space", that is, no special administrative privileges need to be assigned to a user in order for them to run and interact with containers on a platform where Singularity has been installed.
 
 ## Getting started with Singularity
 
-Initially developed within the research community, Singularity is open source and the [repository](https://github.com/hpcng/singularity) is currently available in the "[The Next Generation of High Performance Computing](https://github.com/hpcng)" GitHub organisation. Part I of the Singularity material is intended to be undertaken on a remote platform where Singularity has been pre-installed. 
+Initially developed within the research community, Singularity is open source and both [SingularityCE repository](https://github.com/sylabs/singularity) and [Apptainer respository](https://github.com/apptainer/apptainer) are currently available on GitHub. Part I of the Singularity material is intended to be undertaken on a remote platform where Singularity has been pre-installed. 
 
 _If you're attending a taught version of this course, you will be provided with access details for a remote platform made available to you for use for Part I of the Singularity material. This platform will have the Singularity software pre-installed._
 
@@ -80,11 +80,15 @@ $ singularity --version
 {: .language-bash}
 
 ~~~
-singularity version 3.7.0
+apptainer version 1.2.2
 ~~~
 {: .output}
 
-Depending on the version of Singularity installed on your system, you may see a different version. At the time of writing, `3.7.0` is the latest release of Singularity.
+Depending on the version of Singularity installed on your system, you may see a different version. At the time of writing, `1.2.2` is the latest release of Apptainer.
+
+> ## Where is SingularityCE
+> To keep things simple we kept a module called Singularity but defaulted to Apptainer but try an remember how to find modules on your HPC cluster.
+{: .challenge }
 
 ## Images and containers
 
@@ -98,30 +102,36 @@ A **_container_** is a virtual environment that is based on an image. That is, t
 
 If you recall, Docker images are formed of a set of _layers_ that make up the complete image. If you pull a Docker image from Docker Hub, you see the different layers being downloaded to your system. They are stored in your local Docker repository on your system and you can see details of the available images using the `docker` command.
 
-Singularity images are a little different. Singularity uses the [Signularity Image Format (SIF)](https://github.com/sylabs/sif) and images are provided as single `SIF` files. Singularity images can be pulled from [Singularity Hub](https://singularity-hub.org/), a registry for container images. Alternatively, [Remote Builder](https://cloud.sylabs.io/builder) can be used to build remotely from the command line. Singularity is also capable of running containers based on images pulled from [Docker Hub](https://hub.docker.com/) and some other sources. We'll look at accessing containers from Docker Hub later in the Singularity material.
+Singularity images are a little different. Singularity uses the [Signularity Image Format (SIF)](https://github.com/sylabs/sif) and images are provided as single `SIF` files. Singularity images can be pulled from container registries (the now offline Singularity Hub was a useful resource). Alternatively, [Remote Builder](https://cloud.sylabs.io/builder) can be used to build remotely from the command line. Singularity is also capable of running containers based on images pulled from [Docker Hub](https://hub.docker.com/) and some other sources. We'll look at accessing containers from Docker Hub later in the Singularity material.
 
 > ## Singularity Hub
-> Note that in addition to providing a repository that you can pull images from, [Singularity Hub](https://singularity-hub.org/) can also build Singularity images for you from a `recipe` - a configuration file defining the steps to build an image. We'll look at recipes and building images later.
+> Note that in addition to providing a repository that you can pull images from, [Singularity Hub](https://singularity-hub.org/) could also build Singularity images for you from a `recipe` - a configuration file defining the steps to build an image. We'll look at recipes and building images later.
 > ## Remote Builder
 > To build images it requires registration on [Sylabs Cloud](https://cloud.sylabs.io/builder) website.
 {: .callout}
 
-Let's begin by creating a `test` directory, changing into it and _pulling_ a test _Hello World_ image from Singularity Hub:
+Let's begin by creating a `test` directory, changing into it and _pulling_ a test _Hello World_ image from Docker:
 
 ~~~
 $ mkdir test
 $ cd test
-$ singularity pull hello-world.sif shub://SupercomputingWales/singularity_hub:hello-world
+$ singularity pull hello-world.sif docker://hello-world:latest
 ~~~
 {: .language-bash}
 
 ~~~
-INFO:    Downloading shub image
- 65.64 MiB / 65.64 MiB [================================] 100.00% 14.19 MiB/s 4s
+INFO:    Converting OCI blobs to SIF format
+INFO:    Starting build...
+Getting image source signatures
+Copying blob 719385e32844 done
+Copying config 0dcea989af done
+Writing manifest to image destination
+Storing signatures
+2023/12/11 22:09:54  info unpack layer: sha256:719385e32844401d57ecfd3eacab360bf551a1491c05b85806ed8f1b08d792f6
 ~~~
 {: .output}
 
-What just happened?! We pulled a SIF image from Singularity Hub using the `singularity pull` command and directed it to store the image file using the name `hello-world.sif`. If you run the `ls` command, you should see that the `hello-world.sif` file is now in your current directory. This is our image and we can now run a container based on this image:
+What just happened?! We pulled a SIF image from Docker using the `singularity pull` command and directed it to store the image file using the name `hello-world.sif`. If you run the `ls` command, you should see that the `hello-world.sif` file is now in your current directory. This is our image and we can now run a container based on this image:
 
 ~~~
 $ singularity run hello-world.sif
@@ -129,11 +139,12 @@ $ singularity run hello-world.sif
 {: .language-bash}
 
 ~~~
-RaawwWWWWWRRRR!! Avocado!
+Hello from Docker!
+...
 ~~~
 {: .output}
 
-The above command ran the _hello-world_ container from the image we downloaded from Singularity Hub and the resulting output was shown. 
+The above command ran the _hello-world_ container from the image we downloaded from Docker and the resulting output was shown. 
 
 
 How did the container determine what to do when we ran it?! What did running the container actually do to result in the displayed output?
@@ -146,10 +157,10 @@ $ singularity inspect -r hello-world.sif
 {: .language-bash}
 
 ~~~
-#!/bin/sh 
-
-exec /bin/bash /rawr.sh
-
+#!/bin/sh
+OCI_ENTRYPOINT=''
+OCI_CMD='"/hello"'
+...
 ~~~
 {: .output}
 
