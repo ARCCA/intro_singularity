@@ -24,12 +24,12 @@ If you delete a local `.sif` image that you have pulled from a remote image repo
 
 ~~~
 $ rm hello-world.sif
-$ singularity pull hello-world.sif shub://SupercomputingWales/singularity_hub:hello-world
+$ singularity pull hello-world.sif docker://hello-world
 ~~~
 {: .language-bash}
 
 ~~~
-INFO:    Use cached image
+INFO:    Using cached SIF image
 ~~~
 {: .output}
 
@@ -43,8 +43,8 @@ $ singularity cache list
 {: .language-bash}
 
 ~~~
-There are 1 container file(s) using 65.64 MiB and 0 oci blob file(s) using 0.00 KiB of space
-Total space used: 65.64 MiB
+There are 1 container file(s) using 44.00 KiB and 3 oci blob file(s) using 3.36 KiB of space
+Total space used: 47.36 KiB
 ~~~
 {: .output}
 
@@ -57,14 +57,17 @@ $ singularity cache list -v
 
 ~~~
 NAME                     DATE CREATED           SIZE             TYPE
-6389982af82c0b0444e0e2   2020-12-13 23:29:16    65.64 MiB        shub
+0dcea989af054c9b5ab290   2023-12-11 22:16:39    0.57 KiB         blob
+719385e32844401d57ecfd   2023-12-11 22:16:39    2.40 KiB         blob
+ad7c8b818cf3016b2b6437   2023-12-11 22:16:39    0.39 KiB         blob
+e28fc75c4cbf64761ce6dd   2023-12-11 22:16:40    44.00 KiB        oci-tmp
 
-There are 1 container file(s) using 65.64 MiB and 0 oci blob file(s) using 0.00 KiB of space
-Total space used: 65.64 MiB
+There are 1 container file(s) using 44.00 KiB and 3 oci blob file(s) using 3.36 KiB of space
+Total space used: 47.36 KiB
 ~~~
 {: .output}
 
-This provides us with some more useful information about the actual images stored in the cache. In the `TYPE` column we can see that our image type is `shub` because it's a `SIF` image that has been pulled from Singularity Hub. 
+This provides us with some more useful information about the actual images stored in the cache. In the `TYPE` column we can see that our image type is `blob` because it's a `docker` image that has been pulled from Docker Hub. 
 
 > ## Cleaning the Singularity image cache
 > We can remove images from the cache using the `singularity cache clean` command. Running the command without any options will display a warning and ask you to confirm that you want to remove everything from your cache.
@@ -78,7 +81,7 @@ This provides us with some more useful information about the actual images store
 
 We saw earlier that we can use the `singularity inspect` command to see the run script that a container is configured to run by default. What if we want to run a different command within a container, or we want to open a shell within a container that we can interact with?
 
-If we know the path of an executable that we want to run within a container, we can use the `singularity exec` command. For example, using the `hello-world.sif` container that we've already pulled from Singularity Hub, we can run the following within the `test` directory where the `hello-world.sif` file is located:
+If we know the path of an executable that we want to run within a container, we can use the `singularity exec` command. For example, using the `hello-world.sif` container that we've already pulled from Docker Hub, we can run the following within the `test` directory where the `hello-world.sif` file is located:
 
 ~~~
 $ singularity exec hello-world.sif /bin/echo Hello World!
@@ -86,25 +89,26 @@ $ singularity exec hello-world.sif /bin/echo Hello World!
 {: .language-bash}
 
 ~~~
-Hello World!
+FATAL:   stat /bin/echo: no such file or directory
 ~~~
 {: .output}
 
-Here we see that a container has been started from the `hello-world.sif` image and the `/bin/echo` command has been run within the container, passing the input `Hello World!`. The command has echoed the provided input to the console and the container has terminated.
+Here we see that a container has been started from the `hello-world.sif` image and the `/bin/echo` command was not found. The command provided an error and the container has terminated.
 
 > ## Basic exercise: Running a different command within the "hello-world" container
 >
-> Can you run a container based on the `hello-world.sif` image that **prints the current date and time**?
+> Can you run a container based on the `hello-world.sif` image that **replicates the run command**?
 > 
 > > ## Solution
 > >
 > > ~~~
-> > $ singularity exec hello-world.sif /bin/date
+> > $ singularity exec hello-world.sif /hello
 > > ~~~
 > > {: .language-bash}
 > > 
 > > ~~~
-> > Fri Jun 26 15:17:44 BST 2020
+> > Hello from Docker!
+> > ...
 > > ~~~
 > > {: .output}
 > {: .solution}
@@ -112,23 +116,31 @@ Here we see that a container has been started from the `hello-world.sif` image a
 
 ### Running a shell within a container
 
-If you want to open an interactive shell within a container, Singularity provides the `singularity shell` command. Again, using the `hello-world.sif` image, and within our `test` directory, we can run a shell within a container from the hello-world image:
+If you want to open an interactive shell within a container, Singularity provides the `singularity shell` command. Let's download a Ubuntu image from Docker Hub:
 
 ~~~
-$ singularity shell hello-world.sif
+$ singularity pull ubuntu.sif docker://ubuntu
+~~~
+{: .language-bash}
+
+Again, using the `ubuntu.sif` image, and within our `test` directory, we can run a shell within a container from the hello-world image:
+
+~~~
+$ singularity shell ubuntu.sif
 ~~~
 {: .language-bash}
 
 ~~~
-Singularity> whoami
+Apptainer> whoami
 [<your username>]
-Singularity> ls
+Apptainer> ls
 hello-world.sif
-Singularity> 
+ubuntu.sif
+Apptainer> 
 ~~~
 {: .output}
 
-As shown above, we have opened a shell in a new container started from the `hello-world.sif` image.
+As shown above, we have opened a shell in a new container started from the `ubuntu.sif` image.
 
 > ## Running a shell inside a Singularity container
 >
@@ -144,13 +156,13 @@ Use the `exit` command to exit from the container shell.
 The first thing to note is that when you run `whoami` within the container you should see the username that you are signed in as on the host system when you run the container. For example, if my username is `c.username`:
 
 ~~~
-$ singularity shell hello-world.sif
+$ singularity shell ubuntu.sif
 Singularity> whoami
 c.username
 ~~~
 {: .language-bash}
 
-But hang on! I downloaded the standard, public version of the `hello-world.sif` image from Singularity Hub. I haven't customised it in any way. How is it configured with my own user details?!
+But hang on! I downloaded the standard, public version of the `ubuntu` image from Docker Hub. I haven't customised it in any way. How is it configured with my own user details?!
 
 If you have any familiarity with Linux system administration, you may be aware that in Linux, users and their Unix groups are configured in the `/etc/passwd` and `/etc/group` files respectively. In order for the shell within the container to know of my user, the relevant user information needs to be available within these files within the container.
 
@@ -182,11 +194,11 @@ Host system:                                                      Singularity co
 
 > ## Questions and exercises: Files in Singularity containers
 >
-> **Q1:** What do you notice about the ownership of files in a container started from the hello-world image? (e.g. take a look at the ownership of files in the root directory (`/`))
+> **Q1:** What do you notice about the ownership of files in a container started from the ubuntu image? (e.g. take a look at the ownership of files in the root directory (`/`))
 > 
-> **Exercise 1:** In this container, try editing (for example using the editor `vi` which should be avaiable in the container) the `/rawr.sh` file. What do you notice?
+> **Exercise 1:** In this container, try overwriting the `/environment` file. What do you notice?
 >
-> _If you're not familiar with `vi` there are many quick reference pages online showing the main commands for using the editor, for example [this one](http://web.mit.edu/merolish/Public/vi-ref.pdf)._
+> _If you're not familiar with shell output redirection please ask.
 > 
 > **Exercise 2:** In your home directory within the container shell, try and create a simple text file. Is it possible to do this? If so, why? If not, why not?! If you can successfully create a file, what happens to it when you exit the shell and the container shuts down?
 >
@@ -194,7 +206,7 @@ Host system:                                                      Singularity co
 > >
 > > **A1:** Use the `ls -l` command to see a detailed file listing including file ownership and permission details. You should see that all the files are owned by you. This looks good - you should be ready to edit something in the exercise that follows...
 > >
-> > **A Ex1:** Unfortunately, it's not so easy, depending on how you tried to edit `/rawr.sh` you probably saw an error similar to the following: `Can't open file for writing` or `Read-only file system`
+> > **A Ex1:** Unfortunately, it's not so easy, depending on how you modified `/environment` you probably saw an error similar to the following: `Can't open file for writing` or `Read-only file system`
 > > 
 > > **A Ex2:** Within your home directory, you _should_ be able to successfully create a file. Since you're seeing your home directory on the host system which has been bound into the container, when you exit and the container shuts down, the file that you created within the container should still be present when you look at your home directory on the host system.
 > {: .solution}
@@ -202,7 +214,7 @@ Host system:                                                      Singularity co
 
 ## Using Docker images with Singularity
 
-Singularity can also start containers from Docker images, opening up access to a huge number of existing container images available on [Docker Hub](https://hub.docker.com/) and other registries.
+Singularity can use Docker images as seen earlier, opening up access to a huge number of existing container images available on [Docker Hub](https://hub.docker.com/) and other registries.
 
 While Singularity doesn't support running Docker images directly, it can pull them from Docker Hub and convert them into a suitable format for running via Singularity. When you pull a Docker image, Singularity pulls the slices or _layers_ that make up the Docker image and converts them into a single-file Singularity SIF image.
 
@@ -291,12 +303,12 @@ In addition to running a container and having it run the default run script, you
 > > {: .language-bash}
 > > 
 > > ~~~
-> > Singularity> echo $SHELL
+> > Apptainer> echo $SHELL
 > > /bin/bash
-> > Singularity> cat /etc/issue
+> > Apptainer> cat /etc/issue
 > > Debian GNU/Linux 10 \n \l
 > > 
-> > Singularity> exit
+> > Apptainer> exit
 > > $ 
 > > ~~~
 > > {: .output}
@@ -309,7 +321,7 @@ In addition to running a container and having it run the default run script, you
 > > {: .language-bash}
 > > 
 > > ~~~
-> > Singularity> echo $SHELL
+> > Apptainer> echo $SHELL
 > > /bin/bash
 > > ~~~
 > > {: .output}
