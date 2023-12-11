@@ -10,16 +10,16 @@ objectives:
 keypoints:
 - "Singularity definition files are used to define the build process and configuration for an image."
 - "Singularity's Docker container provides a way to build images on a platform where Singularity is not installed but Docker is available."
-- "Existing images from remote registries such as Docker Hub and Singularity Hub can be used as a base for creating new Singularity images."
+- "Existing images from remote registries such as Docker Hub can be used as a base for creating new Singularity images."
 ---
 
 # Singularity - Part II
 
 ## Brief recap
 
-In the two episodes covering Part I of the Singularity material we've seen how Singularity can be used on a computing platform where you don't have any administrative privileges. The software was pre-installed and it was possible to work with existing images such as Singularity image files already stored on the platform or images obtained from a remote image repository such as Singularity Hub or Docker Hub.
+In the two episodes covering Part I of the Singularity material we've seen how Singularity can be used on a computing platform where you don't have any administrative privileges. The software was pre-installed and it was possible to work with existing images such as Singularity image files already stored on the platform or images obtained from a remote image repository such as Docker Hub.
 
-It is clear that between Singularity Hub and Docker Hub there is a huge array of images available but what if you want to create your own images or customise existing images?
+It is clear that with Docker Hub there is a huge array of images available but what if you want to create your own images or customise existing images?
 
 In this first of three episodes in Part II of the Singularity material, we'll look at building Singularity images.
 
@@ -31,17 +31,17 @@ There are three different options for accessing a suitable environment to undert
 
  1. Install Singularity locally on a system where you have administrative access
  1. Use Singularity on a system where it is already pre-installed and you have administrative (root) access
- 1. Use one of the Singularity builders in the cloud such as provided by Sylabs and Singularity Hub.
+ 1. Use one of the Singularity builders in the cloud such as provided by Sylabs or Gitlab/Github CI/CD pipelines.
 
 We'll focus on the last option in this part of the course. If you would like to install Singularity directly on your system, see the box below for some further pointers. Note that the installation process is an advanced task that is beyond the scope of this course so we won't be covering this.
 
-> ## Installing Singularity on your local system (optional) \[Advanced task\]
+> ## Installing Apptainer on your local system (optional) \[Advanced task\]
 >
-> If you are running Linux and would like to install Singularity locally on your system, Singularity provide the free, open source [Singularity Community Edition](https://github.com/hpcng/singularity/releases). You will need to install various dependencies on your system and then build Singularity from source code.
+> If you are running Linux and would like to install Apptainer locally on your system, Singularity provide the free, open source [Apptainer](https://github.com/apptainer/apptainer/releases). You will need to install various dependencies on your system and then build Singularity from source code.
 >
 > _If you are not familiar with building applications from source code, and want to investigate Docker further, it is strongly recommended that you use the Docker Singularity image, as described below in the "Getting started with the Docker Singularity image" section rather than attempting to build and install Singularity yourself. The installation process is an advanced task that is beyond the scope of this session._
 > 
-> However, if you have Linux systems knowledge and would like to attempt a local install of Singularity, you can find details in the [INSTALL.md](https://github.com/sylabs/singularity/blob/master/INSTALL.md) file within the Singularity repository that explains how to install the prerequisites and build and install the software. Singularity is written in the [Go](https://golang.org/) programming language and Go is the main dependency that you'll need to install on your system. The process of installing Go and any other requirements is detailed in the INSTALL.md file.
+> However, if you have Linux systems knowledge and would like to attempt a local install Apptainer, you can find details in the [INSTALL.md](https://github.com/apptainer/apptainer/blob/master/INSTALL.md) file within the Apptainer repository that explains how to install the prerequisites and build and install the software. Apptainer is written in the [Go](https://golang.org/) programming language and Go is the main dependency that you'll need to install on your system. The process of installing Go and any other requirements is detailed in the INSTALL.md file.
 > 
 {: .callout}
 
@@ -130,9 +130,9 @@ Similarly to Docker and many other modern software tools, Singularity follows th
 There are various approaches to building Singularity images. We highlight two different approaches here and focus on one of them:
 
  - _Building within a sandbox:_ You can build a container interactively within a sandbox environment. This means you get a shell within the container environment and install and configure packages and code as you wish before exiting the sandbox and converting it into a container image.
-- _Building from a [Singularity Definition File](https://sylabs.io/guides/3.7/user-guide/build_a_container.html#building-containers-from-singularity-definition-files)_: This is Singularity's equivalent to building a Docker container from a `Dockerfile` and we'll discuss this approach in this section.
+- _Building from a [Apptainer Definition File](https://apptainer.org/docs/user/latest/build_a_container.html#building-containers-from-apptainer-definition-files)_: This is Singularity's equivalent to building a Docker container from a `Dockerfile` and we'll discuss this approach in this section.
 
-You can take a look at Singularity's "[Build a Container](https://sylabs.io/guides/3.7/user-guide/build_a_container.html#build-a-container)" documentation for more details on different approaches to building containers.
+You can take a look at Apptainer's "[Build a Container](https://apptainer.org/docs/user/latest/build_a_container.html)" documentation for more details on different approaches to building containers.
 
 > ## Why look at Singularity Definition Files?
 > Why do you think we might be looking at the _definition file approach_ here rather than the _sandbox approach_?
@@ -165,7 +165,7 @@ From: ubuntu:20.04
 ~~~
 {: .language-bash}
 
-A definition file has a number of optional sections, specified using the `%` prefix, that are used to define or undertake different configuration during different stages of the image build process. You can find full details in Singularity's [Definition Files documentation](https://sylabs.io/guides/3.7/user-guide/definition_files.html). In our very simple example here, we only use the `%post` and `%runscript` sections.
+A definition file has a number of optional sections, specified using the `%` prefix, that are used to define or undertake different configuration during different stages of the image build process. You can find full details in Singularity's [Definition Files documentation](https://apptainer.org/docs/user/latest/definition_files.html). In our very simple example here, we only use the `%post` and `%runscript` sections.
 
 Let's step through this definition file and look at the lines in more detail:
 
@@ -177,7 +177,7 @@ From: ubuntu:20.04
 
 These first two lines define where to _bootstrap_ our image from. Why can't we just put some application binaries into a blank image? Any applications or tools that we want to run will need to interact with standard system libraries and potentially a wide range of other libraries and tools. These need to be available within the image and we therefore need some sort of operating system as the basis for our image. The most straightforward way to achieve this is to start from an existing base image containing an operating system. In this case, we're going to start from a minimal Ubuntu 20.04 Linux Docker image. Note that we're using a Docker image as the basis for creating a Singularity image. This demonstrates the flexibility in being able to start from different types of images when creating a new Singularity image.
 
-The `Bootstrap: docker` line is similar to prefixing an image path with `docker://` when using, for example, the `singularity pull` command. A range of [different bootstrap options](https://sylabs.io/guides/3.7/user-guide/definition_files.html#preferred-bootstrap-agents) are supported. `From: ubuntu:20.04` says that we want to use the `ubuntu` image with the tag `20.04`.
+The `Bootstrap: docker` line is similar to prefixing an image path with `docker://` when using, for example, the `singularity pull` command. A range of [different bootstrap options](https://apptainer.org/docs/user/latest/definition_files.html#preferred-bootstrap-agents) are supported. `From: ubuntu:20.04` says that we want to use the `ubuntu` image with the tag `20.04`.
 
 Next we have the `%post` section of the definition file:
 
@@ -327,21 +327,21 @@ Here we've looked at a very simple example of how to create an image. At this st
  - `%labels`
  - `%help`
 
-The [`Sections` part of the definition file documentation](https://sylabs.io/guides/3.7/user-guide/definition_files.html#sections) details all the sections and provides an example definition file that makes use of all the sections.
+The [`Sections` part of the definition file documentation](https://apptainer.org/docs/user/latest/definition_files.html#sections) details all the sections and provides an example definition file that makes use of all the sections.
 
 ### Additional Singularity features
 
-Singularity has a wide range of features. You can find full details in the [Singularity User Guide](https://sylabs.io/guides/3.7/user-guide/index.html) and we highlight a couple of key features here that may be of use/interest:
+Singularity has a wide range of features. You can find full details in the [Singularity User Guide](https://apptainer.org/docs/user/latest/) and we highlight a couple of key features here that may be of use/interest:
 
 
-**Signing containers:** If you do want to share container image (`.sif`) files directly with colleagues or collaborators, how can the people you send an image to be sure that they have received the file without it being tampered with or suffering from corruption during transfer/storage? And how can you be sure that the same goes for any container image file you receive from others? Singularity supports signing containers. This allows a digital signature to be linked to an image file. This signature can be used to verify that an image file has been signed by the holder of a specific key and that the file is unchanged from when it was signed. You can find full details of how to use this functionality in the Singularity documentation on [Signing and Verifying Containers](https://sylabs.io/guides/3.7/user-guide/signNverify.html).
+**Signing containers:** If you do want to share container image (`.sif`) files directly with colleagues or collaborators, how can the people you send an image to be sure that they have received the file without it being tampered with or suffering from corruption during transfer/storage? And how can you be sure that the same goes for any container image file you receive from others? Singularity supports signing containers. This allows a digital signature to be linked to an image file. This signature can be used to verify that an image file has been signed by the holder of a specific key and that the file is unchanged from when it was signed. You can find full details of how to use this functionality in the Singularity documentation on [Signing and Verifying Containers](https://apptainer.org/docs/user/latest/signNverify.html).
 
-## Using Singularity Hub
+## How Singularity Hub used to work
 
-A collection of Singularity definition files have been built up on the [Supercomputing Wales Github
+A collection of Singularity definition files were built up on the [Supercomputing Wales Github
 account](https://github.com/SupercomputingWales/singularity_hub)
 
-This repository is configured to use a web hook to automatically build updates to the repository on the [Singularity
+This repository was configured to use a web hook to automatically build updates to the repository on the [Singularity
 Hub](https://singularity-hub.org).
 
 Once built it can then be pulled from Singularity Hub using
@@ -351,8 +351,7 @@ $ singularity pull shub://SupercomputingWales/singularity_hub:hello-world
 ~~~
 {: .language-bash}
 
-This `pull` was performed earlier in the very first examples.  It is worth noting the
-[limits](https://singularityhub.github.io/singularityhub-docs/docs/regulatory/limits) that are imposed on users to keep
+This `pull` was performed earlier in the very first examples.  It is worth noting limits that are imposed on users to keep
 the usage to a manageable amount. The resource to build the images is currently provided by Google free of charge but
 abuse of the system could change that.
 
