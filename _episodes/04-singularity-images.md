@@ -314,6 +314,85 @@ Hello World! Hello from our custom Singularity image!
 > The `singularity run` command should now work successfully.
 {: .callout}
 
+### Using Gitlab to build and store containers
+
+It is possible to use Gitlab to build and store containers.  For example [Cardiff University Gitlab](https://git.cardiff.ac.uk).  To build we need to add a Gitlab-CI pipeline within a Gitlab project directory `.gitlabci` create a script `build.sh` to run that will install Singularity and create package e.g.
+
+~~~
+#!/bin/bash
+
+yum install -y epel-release
+yum install -y apptainer-suid git python3-pip
+
+echo "Python Version:"
+python3 --version
+
+recipe=Singularity
+imagefile="${recipe}.sif"
+echo "Creating $imagefile using $recipe..."
+singularity build $imagefile $recipe
+
+echo "About to upload to $CI_REGISTRY"
+echo "$CI_REGISTRY_PASSWORD" | singularity remote login -u $CI_REGISTRY_USER --password-stdin oras://$CI_REGISTRY
+singularity push $imagefile oras://$CI_REGISTRY/arcca/containers/${recipe}:latest
+
+~~~
+{: .language-bash}
+
+The in the root directory of the project repository create `Singularity` defintition file e.g.
+
+~~~
+Bootstrap: docker
+From: ubuntu:16.04
+
+# Test
+%runscript
+    exec echo "Polo $@!"
+~~~
+{: .lanugage-bash}
+
+And a `.gitlab-ci.yml` file
+
+~~~
+image:
+  name: rockylinux:8
+  entrypoint: ["/bin/sh", "-c"]
+
+build:
+  script:
+     - /bin/bash .gitlabci/build.sh
+
+      # step 1. build the container!
+      # You can add any other sregistry push commands here, and specify a client
+      # (and make sure your define the encrypted environment credentials in gitlab
+      # to push to your storage locations of choice
+
+      # - mkdir -p build && cp *.sif build
+      # - mkdir -p build && cp Singularity* build
+
+      # Step 2. Take a look at "artifacts" below and add the paths you want added
+      # You can also add the entire build folder. You can also upload to storage
+      # clients defined by sregistry, here are some examples
+      # https://singularityhub.github.io/sregistry-cli/clients
+      # Environment variables must be defined in CI encrypted secrets/settings
+      # https://code.stanford.edu/help/ci/variables/README#variables).
+      #- /bin/bash build.sh --uri collection/container --cli google-storage Singularity
+      #- /bin/bash build.sh --uri collection/container --cli google-drive Singularity
+      #- /bin/bash build.sh --uri collection/container --cli globus Singularity
+      #- /bin/bash build.sh --uri collection/container --cli registry Singularity
+
+  # This is where you can save job artifacts
+  # https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html
+  # You can specify the path to containers or the build folder to save.
+  # Don't forget to save your recipes too!
+  #artifacts:
+  #    paths:
+  #      - build/Singularity.sif
+  #      - build/Singularity
+~~~
+{: .language-yaml}
+
+Then on change to `Singularity` file it should rebuild the container and upload to the Gitlab container registry for your project.
 
 ### More advanced definition files
 
